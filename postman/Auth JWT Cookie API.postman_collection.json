@@ -1,0 +1,202 @@
+{
+  "info": {
+    "_postman_id": "d0cbc78c-d245-4537-bc92-76715795daee",
+    "name": "Auth JWT Cookie API",
+    "description": "Collection para testar autenticação com JWT + Cookie + CSRF",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "52179459",
+    "_collection_link": "https://go.postman.co/collection/52179459-d0cbc78c-d245-4537-bc92-76715795daee?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Init CSRF",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const xsrf = pm.cookies.get('XSRF-TOKEN');",
+              "if (xsrf) {",
+              "    pm.collectionVariables.set('xsrfToken', xsrf);",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/auth/login",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create User",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"email\": \"user@email.com\",\n    \"password\": \"123456\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/auth/register",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "auth",
+            "register"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Login",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "X-XSRF-TOKEN",
+            "value": "{{xsrfToken}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"admin@email.com\",\n  \"password\": \"123456\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/auth/login",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Test USER",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "X-XSRF-TOKEN",
+            "value": "{{xsrfToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/user",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "user"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Test ADMIN",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "X-XSRF-TOKEN",
+            "value": "{{xsrfToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/admin",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "admin"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Refresh Token",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-XSRF-TOKEN",
+            "value": "{{xsrfToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/auth/refresh",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "auth",
+            "refresh"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Logout",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-XSRF-TOKEN",
+            "value": "{{xsrfToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/auth/logout",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "auth",
+            "logout"
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "xsrfToken",
+      "value": ""
+    }
+  ]
+}
