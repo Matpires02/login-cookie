@@ -24,11 +24,13 @@ public class JwtFilter extends OncePerRequestFilter {
     private final JwtAuthConverter converter;
     private final JwtService jwtService;
     private final TokenBlacklistService tokenBlacklistService;
+    private final RateLimitService rateLimitService;
 
-    public JwtFilter(JwtAuthConverter converter, JwtService jwtService, TokenBlacklistService tokenBlacklistService) {
+    public JwtFilter(JwtAuthConverter converter, JwtService jwtService, TokenBlacklistService tokenBlacklistService, RateLimitService rateLimitService) {
         this.converter = converter;
         this.jwtService = jwtService;
         this.tokenBlacklistService = tokenBlacklistService;
+        this.rateLimitService = rateLimitService;
     }
 
     @Override
@@ -47,7 +49,10 @@ public class JwtFilter extends OncePerRequestFilter {
 
         String token = extractCookie(request, "access_token");
 
+        String id = getClientIP(request);
+
         if (token == null || !jwtService.isTokenValid(token)) {
+            rateLimitService.incrementFailedAttempts(id);
             chain.doFilter(request, response);
             return;
         }
@@ -58,6 +63,7 @@ public class JwtFilter extends OncePerRequestFilter {
             // 🚨 PROTEÇÃO REPLAY ATTACK
             if (tokenBlacklistService.isBlacklisted(jti)) {
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token inválido (replay detectado)");
+                rateLimitService.incrementFailedAttempts(id);
                 return;
             }
 
@@ -69,7 +75,10 @@ public class JwtFilter extends OncePerRequestFilter {
             UsernamePasswordAuthenticationToken auth = converter.convert(username, roles);
             auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             SecurityContextHolder.getContext().setAuthentication(auth);
+            rateLimitService.reset(id);
+
         } catch (Exception e) {
+            rateLimitService.incrementFailedAttempts(id);
             // ⚠️ Evita quebrar a aplicação por erro de token
             SecurityContextHolder.clearContext();
         }
@@ -85,5 +94,12 @@ public class JwtFilter extends OncePerRequestFilter {
                 .map(Cookie::getValue)
                 .findFirst()
                 .orElse(null);
+    }
+
+    private String getClientIP(HttpServletRequest request) {
+        String xfHeader = request.getHeader("X-Forwarded-For");
+        return (xfHeader == null)
+                ? request.getRemoteAddr()
+                : xfHeader.split(",")[0];
     }
 }

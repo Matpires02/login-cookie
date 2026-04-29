@@ -2,6 +2,7 @@ package com.matpires.login_cookie.config;
 
 import com.matpires.login_cookie.audit.AuditFilter;
 import com.matpires.login_cookie.security.JwtFilter;
+import com.matpires.login_cookie.security.RateLimitFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -23,7 +24,7 @@ public class ProdSecurityConfig {
     @Bean
     public SecurityFilterChain prodFilterChain(HttpSecurity http,
                                                JwtFilter jwtFilter,
-                                               AuditFilter auditFilter) throws Exception {
+                                               AuditFilter auditFilter, RateLimitFilter rateLimitFilter) throws Exception {
 
         return http
                 .csrf(csrf -> csrf
@@ -43,7 +44,7 @@ public class ProdSecurityConfig {
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
-
+                .addFilterBefore(rateLimitFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterAfter(auditFilter, JwtFilter.class)
                 .build();
