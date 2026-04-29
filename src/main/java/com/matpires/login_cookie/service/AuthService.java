@@ -36,7 +36,7 @@ public class AuthService {
                 .orElseThrow(InvalidCredentialsException::new);
 
         if (!encoder.matches(request.getPassword(), user.getPassword())) {
-            throw new RuntimeException("Credenciais inválidas");
+            throw new InvalidCredentialsException();
         }
 
         return generateTokens(user);
