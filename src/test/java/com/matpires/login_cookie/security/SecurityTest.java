@@ -1,13 +1,11 @@
 package com.matpires.login_cookie.security;
 
 import com.matpires.login_cookie.config.CookieUtil;
-import com.matpires.login_cookie.entity.Role;
 import com.matpires.login_cookie.entity.User;
 import com.matpires.login_cookie.enums.RoleName;
 import com.matpires.login_cookie.repository.RoleRepository;
 import com.matpires.login_cookie.repository.UserRepository;
 import jakarta.servlet.http.Cookie;
-import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,12 +18,10 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -51,8 +47,13 @@ class SecurityTest {
     @Autowired
     private RoleRepository roleRepository;
 
+    @Autowired
+    private RateLimitService rateLimitService;
+
     @BeforeEach
     void beforeAll() {
+        rateLimitService.resetAll();
+
         userRepository.deleteAll();
 
         User user = new User();
@@ -88,7 +89,7 @@ class SecurityTest {
 
         MvcResult mvcResult = mockMvc.perform(post("/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(login)).andReturn();
+                .content(login)).andExpect(status().isOk()).andReturn();
 
         Cookie[] cookies = mvcResult.getResponse().getCookies();
 
@@ -109,7 +110,7 @@ class SecurityTest {
 
         MvcResult mvcResult = mockMvc.perform(post("/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(login)).andReturn();
+                .content(login)).andExpect(status().isOk()).andReturn();
 
         Cookie[] cookies = mvcResult.getResponse().getCookies();
 
@@ -130,7 +131,7 @@ class SecurityTest {
 
         MvcResult mvcResult = mockMvc.perform(post("/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(login)).andReturn();
+                .content(login)).andExpect(status().isOk()).andReturn();
 
         Cookie[] cookies = mvcResult.getResponse().getCookies();
 
@@ -154,7 +155,7 @@ class SecurityTest {
 
         MvcResult mvcResult = mockMvc.perform(post("/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(login)).andReturn();
+                .content(login)).andExpect(status().isOk()).andReturn();
 
         // Pegando cookies
         Cookie[] cookies = mvcResult.getResponse().getCookies();

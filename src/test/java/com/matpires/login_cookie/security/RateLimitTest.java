@@ -58,12 +58,14 @@ class RateLimitTest {
         for (int i = 0; i < 10; i++) {
             mockMvc.perform(post("/auth/login")
                     .contentType(MediaType.APPLICATION_JSON)
+                    .header("X-Forwarded-For", "10.0.0.2")
                     .content(body));
         }
 
         // deve bloquear
         mockMvc.perform(post("/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-Forwarded-For", "10.0.0.2")
                         .content(body))
                 .andExpect(status().isTooManyRequests());
     }

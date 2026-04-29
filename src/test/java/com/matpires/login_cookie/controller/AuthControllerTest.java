@@ -1,5 +1,7 @@
 package com.matpires.login_cookie.controller;
 
+import com.matpires.login_cookie.security.RateLimitService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,6 +23,13 @@ class AuthControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+    @Autowired
+    private RateLimitService rateLimitService;
+
+    @BeforeEach
+    void setUp() {
+        rateLimitService.resetAll();
+    }
 
     @Test
     void shouldRegisterUser() throws Exception {

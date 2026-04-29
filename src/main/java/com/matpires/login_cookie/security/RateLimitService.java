@@ -67,4 +67,9 @@ public class RateLimitService {
         failedAttempts.remove(key);
         buckets.remove(key);
     }
+
+    public void resetAll() {
+        buckets.clear();
+        failedAttempts.clear();
+    }
 }
