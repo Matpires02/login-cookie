@@ -58,7 +58,8 @@ public class AuthService {
         return generateTokens(user);
     }
 
-    public void logout() {
-        //tokenBlacklistService.blacklist(jti);
+    public void logout(String token) {
+        String jti = jwtService.extractJti(token);
+        tokenBlacklistService.blacklist(jti);
     }
 }

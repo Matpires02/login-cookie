@@ -47,9 +47,15 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(HttpServletResponse response) {
+    public ResponseEntity<?> logout(HttpServletResponse response, HttpServletRequest request) {
 
-        service.logout();
+        String acessToken = Arrays.stream(request.getCookies())
+                .filter(c -> "access_token".equals(c.getName()))
+                .findFirst()
+                .map(Cookie::getValue)
+                .orElseThrow();
+
+        service.logout(acessToken);
 
         cookieUtil.delete(response, "access_token");
         cookieUtil.delete(response, "refresh_token");
